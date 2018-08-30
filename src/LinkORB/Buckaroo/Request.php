@@ -32,13 +32,13 @@ class Request
 
     public function __construct($websiteKey = null, $testMode = false, array $soapOptions = array())
     {
-        
+
         $this->websiteKey = $websiteKey;
         $this->testMode = $testMode;
 
-		$wsdl_url = "https://checkout.buckaroo.nl/soap/soap.svc?wsdl";
-		$this->soapClient = new SoapClientWSSEC($wsdl_url, array_merge(static::$defaultSoapOptions, $soapOptions));
-	}
+        $wsdl_url = "https://checkout.buckaroo.nl/soap/soap.svc?wsdl";
+        $this->soapClient = new SoapClientWSSEC($wsdl_url, array_merge(static::$defaultSoapOptions, $soapOptions));
+    }
 
     public function loadPem($filename)
     {
@@ -47,7 +47,7 @@ class Request
 
     public function setChannel($channel)
     {
-	$this->channel = $channel;
+    $this->channel = $channel;
     }
 
     public function sendRequest($TransactionRequest, $type)
@@ -95,39 +95,42 @@ class Request
         $soapHeaders[] = new \SOAPHeader('https://checkout.buckaroo.nl/PaymentEngine/', 'MessageControlBlock', $Header->MessageControlBlock);
         $soapHeaders[] = new \SOAPHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', 'Security', $Header->Security);
         $this->soapClient->__setSoapHeaders($soapHeaders);
-        
-		if ($this->testMode) {
-			$this->soapClient->__SetLocation('https://testcheckout.buckaroo.nl/soap/');
-		} else {
-			$this->soapClient->__SetLocation('https://checkout.buckaroo.nl/soap/');
-		}
+
+        if ($this->testMode) {
+            $this->soapClient->__SetLocation('https://testcheckout.buckaroo.nl/soap/');
+        } else {
+            $this->soapClient->__SetLocation('https://checkout.buckaroo.nl/soap/');
+        }
 
         $return = array();
-		switch($type) {
-			case 'invoiceinfo':
+        switch($type) {
+            case 'invoiceinfo':
                 $return['result'] = $this->soapClient->InvoiceInfo($TransactionRequest);
-				break;
-			case 'transaction':
-				$return['result'] = $this->soapClient->TransactionRequest($TransactionRequest);
-				break;
+                break;
+            case 'transaction':
+                $return['result'] = $this->soapClient->TransactionRequest($TransactionRequest);
+                break;
             case 'transactionstatus':
                 $return['result'] = $this->soapClient->TransactionStatus($TransactionRequest);
                 break;
-			case 'refundinfo':
+            case 'refundinfo':
                 $return['result'] = $this->soapClient->RefundInfo($TransactionRequest);
-				break;
-		}
+                break;
+            case 'data':
+                $return['result'] = $this->soapClient->DataRequest($TransactionRequest);
+                break;
+        }
 
-		$return['response'] = $this->soapClient->__getLastResponse();
-		$return['request']  = $this->soapClient->__getLastRequest();
-		return $return;
-	}
+        $return['response'] = $this->soapClient->__getLastResponse();
+        $return['request']  = $this->soapClient->__getLastRequest();
+        return $return;
+    }
 
     /**
      * @param boolean $testMode
      * @return Request
      */
-    public function setTestMode($testMode) 
+    public function setTestMode($testMode)
     {
         $this->testMode = $testMode;
 
@@ -137,7 +140,7 @@ class Request
     /**
      * @return boolean
      */
-    public function getTestMode() 
+    public function getTestMode()
     {
         return $this->testMode;
     }
@@ -156,7 +159,7 @@ class Request
     /**
      * @return string
      */
-    public function getCulture() 
+    public function getCulture()
     {
         return $this->culture;
     }
